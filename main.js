@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { Store } = require('./src/store');
 const { polish } = require('./src/polish');
-const { buildDocx } = require('./src/docxBuilder');
+const { sessionPage, allNotesPage, toMarkdown } = require('./src/pageBuilder');
 
 let store;
 let win;
@@ -44,7 +44,7 @@ function createWindow() {
     height: 780,
     minWidth: 820,
     minHeight: 560,
-    title: 'Galisano Notes',
+    title: 'Golisano Notes',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -54,6 +54,16 @@ function createWindow() {
     },
   });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+}
+
+// Use the class folder you already made in Q5 if one matches (ignoring case); otherwise make it.
+function classDir(q5, className) {
+  const want = safeName(className).toLowerCase();
+  try {
+    const hit = fs.readdirSync(q5, { withFileTypes: true }).find(d => d.isDirectory() && d.name.toLowerCase() === want);
+    if (hit) return path.join(q5, hit.name);
+  } catch (_) {}
+  return path.join(q5, safeName(className));
 }
 
 function uniquePath(dir, base, ext) {
@@ -113,18 +123,23 @@ app.whenReady().then(() => {
       polished: result.polished,
       content: result.content,
       raw,
-      docxPath: null,
+      pagePath: null,
     };
 
-    // Q5/<class>/<date> - <title>.docx
+    // Q5/<class>/<date> - <title>.html, plus an up-to-date "All notes.html" and a Markdown copy.
     try {
-      const dir = path.join(s.q5Path, safeName(cls.name));
+      const dir = classDir(s.q5Path, cls.name);
       fs.mkdirSync(dir, { recursive: true });
-      const file = uniquePath(dir, `${date} - ${safeName(session.title)}`, '.docx');
-      fs.writeFileSync(file, await buildDocx(session, cls.name));
-      session.docxPath = file;
+      const base = `${date} - ${safeName(session.title)}`;
+      const file = uniquePath(dir, base, '.html');
+      fs.writeFileSync(file, sessionPage(session, cls.name));
+      session.pagePath = file;
+      fs.writeFileSync(path.join(dir, 'All notes.html'), allNotesPage([...store.sessionsFor(classId), session], cls.name));
+      const mdDir = path.join(dir, 'for-claude');
+      fs.mkdirSync(mdDir, { recursive: true });
+      fs.writeFileSync(uniquePath(mdDir, base, '.md'), toMarkdown(session, cls.name));
     } catch (e) {
-      warnings.push(`Could not save the Word file (${e.message}). The notes are still in the app.`);
+      warnings.push(`Could not save to your Q5 folder (${e.message}). The notes are still in the app.`);
     }
 
     store.addSession(session);

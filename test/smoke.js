@@ -4,7 +4,7 @@ const path = require('path');
 const assert = require('assert');
 const { Store } = require('../src/store');
 const { polish, normalize } = require('../src/polish');
-const { buildDocx, toMarkdown } = require('../src/docxBuilder');
+const { sessionPage, allNotesPage, toMarkdown } = require('../src/pageBuilder');
 
 (async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gn-'));
@@ -20,8 +20,9 @@ const { buildDocx, toMarkdown } = require('../src/docxBuilder');
   const session = { id: store.id(), classId: cls.id, date: '2026-10-13', createdAt: new Date().toISOString(), content, title: content.title, summary: content.summary, raw: 'x' };
   store.addSession(session);
 
-  const buf = await buildDocx(session, 'Statistics');
-  assert.equal(buf.slice(0, 2).toString(), 'PK');
+  assert.match(sessionPage(session, 'Statistics'), /<h1>Averages<\/h1>/);
+  assert.match(allNotesPage([session], 'Statistics'), /All notes/);
+  assert.ok(!sessionPage({ ...session, content: { ...content, title: '<script>' } }, 'S').includes('<script>'));
   assert.match(toMarkdown(session, 'Statistics'), /## Key terms/);
 
   assert.equal(new Store(dir).sessionsFor(cls.id).length, 1);

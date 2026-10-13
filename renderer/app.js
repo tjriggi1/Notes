@@ -123,7 +123,7 @@ function renderNew(pane, cls) {
       activeTab = 'previous';
       setState(r.state);
       const s = r.state.sessions.find(x => x.id === r.sessionId);
-      toast(r.warnings.length ? r.warnings.join(' ') : `Saved to ${s.docxPath}`, r.warnings.length > 0);
+      toast(r.warnings.length ? r.warnings.join(' ') : `Saved to ${s.pagePath}`, r.warnings.length > 0);
     } catch (e) {
       submit.disabled = false;
       submit.textContent = 'Submit';
@@ -176,7 +176,7 @@ function docView(s) {
       el('tr', {}, el('td', {}, t.term), el('td', {}, t.definition || '(not explained in class notes)')))));
   }
   if (c.takeaways.length) d.append(el('h3', {}, 'Takeaways'), el('ul', {}, c.takeaways.map(t => el('li', {}, t))));
-  if (s.docxPath) d.append(el('div', { class: 'file' }, 'Word file: ', el('a', { onclick: () => window.api.showFile(s.docxPath) }, s.docxPath)));
+  if (s.pagePath) d.append(el('div', { class: 'file' }, 'Saved page: ', el('a', { onclick: () => window.api.showFile(s.pagePath) }, s.pagePath)));
   return d;
 }
 

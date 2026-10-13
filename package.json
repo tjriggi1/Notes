@@ -1,14 +1,11 @@
 {
-  "name": "galisano-notes",
+  "name": "golisano-notes",
   "version": "1.0.0",
   "description": "Desktop class-notes app: type fast, press submit, get a polished Word document filed by class.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "test": "node test/smoke.js"
-  },
-  "dependencies": {
-    "docx": "^9.0.0"
   },
   "devDependencies": {
     "electron": "^33.0.0"
