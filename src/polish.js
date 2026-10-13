@@ -1,5 +1,7 @@
+const { localFormat } = require('./localFormat');
+
 // Turns rough in-class notes into structured, formal notes using the Claude API.
-// If there is no key or the call fails, falls back to a light local cleanup so a
+// If there is no key or the call fails, falls back to local rule-based formatting so a
 // submit never loses notes.
 
 const SYSTEM = `You turn a student's rushed in-class notes into polished study notes.
@@ -17,18 +19,7 @@ Rules:
  "takeaways": [string]}
 Leave any array empty if it does not apply.`;
 
-function fallback(raw) {
-  const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-  const bullets = lines.map(l => l.replace(/^[-*•]\s*/, ''));
-  const first = bullets[0] || 'Class notes';
-  return {
-    title: first.length > 60 ? first.slice(0, 57) + '...' : first,
-    summary: 'Unpolished notes (not rewritten; no AI key was available or the request failed).',
-    sections: [{ heading: 'Notes', paragraphs: [], bullets }],
-    keyTerms: [],
-    takeaways: [],
-  };
-}
+const fallback = localFormat;
 
 function extractJson(text) {
   const start = text.indexOf('{');
@@ -56,7 +47,7 @@ function normalize(o) {
 
 async function polish({ raw, className, date, apiKey, model }) {
   if (!apiKey) {
-    return { content: fallback(raw), polished: false, warning: 'No Anthropic API key set (Settings), so your notes were saved as typed.' };
+    return { content: fallback(raw), polished: false, warning: 'No API key set, so notes were formatted with basic cleanup only (shorthand expanded, headings and bullets organized). Add a key in Settings for full rewriting.' };
   }
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -78,7 +69,7 @@ async function polish({ raw, className, date, apiKey, model }) {
     const text = (body.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
     return { content: normalize(extractJson(text)), polished: true };
   } catch (e) {
-    return { content: fallback(raw), polished: false, warning: `Polishing failed (${e.message}); notes were saved as typed.` };
+    return { content: fallback(raw), polished: false, warning: `Polishing failed (${e.message}); basic cleanup was used instead.` };
   }
 }
 

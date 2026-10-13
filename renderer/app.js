@@ -4,6 +4,7 @@ let activeClass = null;  // class id
 let activeTab = 'new';   // new | previous | all
 let openSession = null;  // session id shown in Previous tab
 let saveTimer = null;
+let view = 'current';    // sidebar: current | previous
 
 function el(tag, props = {}, ...kids) {
   const n = document.createElement(tag);
@@ -39,16 +40,21 @@ function classSessions() {
     .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
 }
 
+function isCurrent(c) { return c.quarterId === S.currentQuarterId; }
+
+function visibleClasses() {
+  return S.classes.filter(c => (view === 'current') === isCurrent(c));
+}
+
 function setState(next) {
   S = next;
-  if (!S.classes.some(c => c.id === activeClass)) activeClass = S.classes[0]?.id || null;
+  if (!visibleClasses().some(c => c.id === activeClass)) activeClass = visibleClasses()[0]?.id || null;
   renderSidebar();
   renderMain();
 }
 
-function renderSidebar() {
-  const list = $('classList');
-  list.replaceChildren(...S.classes.map(c => el('div', {
+function classRow(c) {
+  return el('div', {
     class: 'cls' + (c.id === activeClass ? ' active' : ''),
     title: 'Double-click to rename',
     onclick: () => { activeClass = c.id; openSession = null; renderSidebar(); renderMain(); },
@@ -56,15 +62,34 @@ function renderSidebar() {
       const name = prompt('Rename class', c.name);
       if (name && name.trim()) setState(await window.api.renameClass(c.id, name));
     },
-  }, el('span', {}, c.name), el('button', {
-    class: 'x', title: 'Delete class and its notes',
+  }, el('span', {}, c.name), view === 'current' ? el('button', {
+    class: 'x', title: 'Remove class from the app (files on disk are kept)',
     onclick: async e => {
       e.stopPropagation();
-      if (confirm(`Delete "${c.name}" and all its notes inside this app? Saved Word files are not touched.`)) {
+      if (confirm(`Remove "${c.name}" and its notes from this app? The saved pages in your quarter folder are not touched.`)) {
         setState(await window.api.deleteClass(c.id));
       }
     },
-  }, '×'))));
+  }, '\u00d7') : null);
+}
+
+function renderSidebar() {
+  $('segCurrent').className = view === 'current' ? 'on' : '';
+  $('segPrevious').className = view === 'previous' ? 'on' : '';
+  $('addClassForm').hidden = view !== 'current';
+  const list = $('classList');
+  if (view === 'current') {
+    list.replaceChildren(...visibleClasses().map(classRow));
+    return;
+  }
+  const rows = [];
+  for (const q of [...S.quarters].reverse()) {
+    if (q.id === S.currentQuarterId) continue;
+    const cs = S.classes.filter(c => c.quarterId === q.id);
+    if (!cs.length) continue;
+    rows.push(el('div', { class: 'qhead' }, q.name), ...cs.map(classRow));
+  }
+  list.replaceChildren(...rows);
 }
 
 function renderMain() {
@@ -72,8 +97,10 @@ function renderMain() {
   const cls = S.classes.find(c => c.id === activeClass);
   if (!cls) {
     main.replaceChildren(el('div', { class: 'empty' },
-      el('h2', {}, 'No classes yet'),
-      el('p', {}, 'Type a class name in the box at the bottom left and press Enter.')));
+      el('h2', {}, view === 'previous' ? 'No previous classes yet' : 'No classes yet'),
+      el('p', {}, view === 'previous'
+        ? 'When you add your next quarter folder, this quarter\'s classes move here and keep all their notes.'
+        : 'Click "Add quarter folder" and pick your Q folder. Each class folder inside it becomes a class.')));
     return;
   }
   const tabs = [['new', 'New notes'], ['previous', 'Previous notes'], ['all', 'All notes']];
@@ -206,21 +233,23 @@ $('settingsBtn').addEventListener('click', () => {
   ];
   const folderBtn = el('button', { type: 'button', onclick: async () => {
     const p = await window.api.pickFolder();
-    if (p) $('s_q5').value = p;
+    if (p) $('s_repo').value = p;
   } }, 'Browse...');
   dlg.replaceChildren(
     el('h2', { style: 'margin-top:0' }, 'Settings'),
-    ...field('s_q5', 'Q5 folder (each class gets a subfolder)', st.q5Path), folderBtn,
+    ...field('s_repo', 'Notes repo folder (auto-upload for Claude)', st.notesRepo || st.notesRepoResolved || '', {
+      hint: 'A local clone of your notes repo. Leave as is if you run the app from that clone. Submit commits and pushes with your existing git login.',
+    }), folderBtn,
     ...field('s_key', 'Anthropic API key', '', {
       type: 'password',
       ph: st.anthropicKeySet ? 'Saved. Leave blank to keep it.' : 'sk-ant-...',
-      hint: 'Used to rewrite your notes. Without it, notes are saved exactly as typed.',
+      hint: 'Used to rewrite your notes. Without it, the app still tidies them with built-in rules.',
     }),
     ...field('s_model', 'Model', st.model),
     el('div', { class: 'btns' },
       el('button', { type: 'button', onclick: () => dlg.close() }, 'Cancel'),
       el('button', { class: 'primary', type: 'button', onclick: async () => {
-        setState(await window.api.setSettings({ q5Path: $('s_q5').value, anthropicKey: $('s_key').value, model: $('s_model').value }));
+        setState(await window.api.setSettings({ notesRepo: $('s_repo').value, anthropicKey: $('s_key').value, model: $('s_model').value }));
         dlg.close();
         toast('Settings saved.');
       } }, 'Save')));
@@ -228,3 +257,22 @@ $('settingsBtn').addEventListener('click', () => {
 });
 
 window.api.state().then(setState);
+
+async function addQuarter() {
+  try {
+    const r = await window.api.addQuarter();
+    if (!r) return;
+    view = 'current';
+    activeClass = null;
+    activeTab = 'new';
+    setState(r.state);
+    toast(`${r.quarterName} is now your current quarter with ${r.total} classes. Earlier classes are under Previous.`);
+  } catch (e) {
+    toast(errText(e), true);
+  }
+}
+$('addQuarterBtn').addEventListener('click', addQuarter);
+window.api.onAddQuarter(addQuarter);
+for (const [id, v] of [['segCurrent', 'current'], ['segPrevious', 'previous']]) {
+  $(id).addEventListener('click', () => { view = v; activeClass = null; openSession = null; setState(S); });
+}

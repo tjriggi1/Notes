@@ -1,6 +1,6 @@
 # Class notes memory
 
-The user (Golisano Institute student) keeps their polished class notes in `classes/<class name>/*.md` in this repo.
+The user (Golisano Institute student) keeps their polished class notes in `classes/<quarter>/<class name>/*.md` in this repo (for example `classes/Q5/Sales/2026-10-13 - Pricing.md`). The newest quarter is the one the user is currently in; older quarters are classes already finished. The desktop app pushes a file here every time the user presses Submit.
 
 When the user asks a question that could relate to any class they are taking (course content, terms, assignments, exam prep, explanations):
 

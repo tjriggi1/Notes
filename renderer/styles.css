@@ -64,3 +64,10 @@ dialog input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); bo
 dialog .hint { color: var(--muted); font-size: 12px; margin-top: 3px; }
 dialog .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 dialog button:not(.primary) { background: none; border: 1px solid var(--line); color: var(--ink); padding: 9px 16px; border-radius: 8px; cursor: pointer; font: inherit; }
+
+#addQuarterBtn { margin-bottom: 10px; }
+.seg { display: flex; margin-bottom: 8px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; background: none; border: 0; color: var(--side-text); padding: 6px; cursor: pointer; font: inherit; font-size: 13px; }
+.seg button.on { background: rgba(255,255,255,.16); color: #fff; }
+.qhead { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; padding: 12px 10px 4px; }
+.cls .sub { display: block; font-size: 11px; opacity: .6; }

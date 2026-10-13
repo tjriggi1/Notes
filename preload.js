@@ -2,6 +2,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   state: () => ipcRenderer.invoke('state'),
+  addQuarter: () => ipcRenderer.invoke('quarter:add'),
+  onAddQuarter: cb => ipcRenderer.on('menu:add-quarter', cb),
   addClass: n => ipcRenderer.invoke('class:add', n),
   renameClass: (id, n) => ipcRenderer.invoke('class:rename', id, n),
   deleteClass: id => ipcRenderer.invoke('class:delete', id),

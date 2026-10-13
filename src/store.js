@@ -4,29 +4,31 @@ const os = require('os');
 const crypto = require('crypto');
 
 const DEFAULT_SETTINGS = {
-  q5Path: path.join(os.homedir(), 'Q5'),
+  q5Path: path.join(os.homedir(), 'Q5'), // legacy: only used to migrate data saved by older versions
   anthropicKey: '',
   model: 'claude-sonnet-5-5',
-  githubToken: '',
-  githubRepo: 'tjriggi1/notes',
+  notesRepo: '', // local clone of the notes repo; blank = auto-detect the app's own folder
 };
 
 class Store {
   constructor(dir) {
     this.dir = dir;
     this.file = path.join(dir, 'notes-data.json');
-    this.data = { classes: [], sessions: [], drafts: {}, settings: { ...DEFAULT_SETTINGS } };
+    this.data = { classes: [], sessions: [], drafts: {}, quarters: [], currentQuarterId: null, settings: { ...DEFAULT_SETTINGS } };
     this.load();
   }
 
   load() {
+    let migrated = false;
     try {
-      const parsed = JSON.parse(fs.readFileSync(this.file, 'utf8'));
+      const p = JSON.parse(fs.readFileSync(this.file, 'utf8'));
       this.data = {
-        classes: parsed.classes || [],
-        sessions: parsed.sessions || [],
-        drafts: parsed.drafts || {},
-        settings: { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) },
+        classes: p.classes || [],
+        sessions: p.sessions || [],
+        drafts: p.drafts || {},
+        quarters: p.quarters || [],
+        currentQuarterId: p.currentQuarterId || null,
+        settings: { ...DEFAULT_SETTINGS, ...(p.settings || {}) },
       };
     } catch (e) {
       if (e.code !== 'ENOENT') {
@@ -34,6 +36,15 @@ class Store {
         try { fs.renameSync(this.file, this.file + '.corrupt-' + Date.now()); } catch (_) {}
       }
     }
+    // Older versions had no quarters: put their classes in one built from the old Q5 path.
+    const orphans = this.data.classes.filter(c => !c.quarterId);
+    if (orphans.length) {
+      const q = this.ensureQuarter(this.data.settings.q5Path);
+      orphans.forEach(c => { c.quarterId = q.id; });
+      if (!this.data.currentQuarterId) this.data.currentQuarterId = q.id;
+      migrated = true;
+    }
+    if (migrated) this.save();
   }
 
   save() {
@@ -45,13 +56,48 @@ class Store {
 
   id() { return crypto.randomUUID(); }
 
+  currentQuarter() {
+    return this.data.quarters.find(q => q.id === this.data.currentQuarterId) || null;
+  }
+
+  quarterOf(cls) {
+    return this.data.quarters.find(q => q.id === cls.quarterId) || null;
+  }
+
+  ensureQuarter(dirPath) {
+    const norm = path.resolve(dirPath);
+    let q = this.data.quarters.find(x => path.resolve(x.path) === norm);
+    if (!q) {
+      q = { id: this.id(), name: path.basename(norm), path: norm };
+      this.data.quarters.push(q);
+    }
+    return q;
+  }
+
+  // Register a quarter folder (e.g. Q6) with one class per subfolder, and make it the current quarter.
+  // Classes from every other quarter stay in the app and show up under "Previous classes".
+  addQuarter(dirPath, classNames) {
+    const q = this.ensureQuarter(dirPath);
+    let added = 0;
+    for (const name of classNames) {
+      if (this.data.classes.some(c => c.quarterId === q.id && c.name.toLowerCase() === name.toLowerCase())) continue;
+      this.data.classes.push({ id: this.id(), name, quarterId: q.id, folder: path.join(q.path, name) });
+      added++;
+    }
+    this.data.currentQuarterId = q.id;
+    this.save();
+    return { quarter: q, added };
+  }
+
   addClass(name) {
     name = String(name || '').trim();
     if (!name) throw new Error('Class name is empty.');
-    if (this.data.classes.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-      throw new Error('A class with that name already exists.');
+    const q = this.currentQuarter();
+    if (!q) throw new Error('Add your quarter folder first (File > Add quarter folder).');
+    if (this.data.classes.some(c => c.quarterId === q.id && c.name.toLowerCase() === name.toLowerCase())) {
+      throw new Error('A class with that name already exists this quarter.');
     }
-    const cls = { id: this.id(), name };
+    const cls = { id: this.id(), name, quarterId: q.id, folder: path.join(q.path, name) };
     this.data.classes.push(cls);
     this.save();
     return cls;
@@ -61,7 +107,7 @@ class Store {
     name = String(name || '').trim();
     const cls = this.data.classes.find(c => c.id === id);
     if (!cls || !name) throw new Error('Cannot rename class.');
-    cls.name = name;
+    cls.name = name; // the folder on disk keeps its original name
     this.save();
     return cls;
   }
@@ -81,12 +127,6 @@ class Store {
   addSession(session) {
     this.data.sessions.push(session);
     delete this.data.drafts[session.classId];
-    this.save();
-  }
-
-  updateSession(id, patch) {
-    const s = this.data.sessions.find(x => x.id === id);
-    if (s) Object.assign(s, patch);
     this.save();
   }
 
