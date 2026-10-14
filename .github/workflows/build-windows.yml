@@ -1,0 +1,23 @@
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/galisano-notes-app-65sdho, main]
+    paths-ignore: ['classes/**', '**.md']
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm test
+      - run: npx electron-builder --win nsis --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Golisano-Notes-Setup
+          path: dist/*.exe

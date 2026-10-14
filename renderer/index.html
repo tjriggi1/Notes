@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
+  <title>Golisano Notes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="brand">Golisano Notes</div>
+    <button id="addQuarterBtn" class="ghost">+ Add quarter folder</button>
+    <div class="seg">
+      <button id="segCurrent" class="on">Current</button>
+      <button id="segPrevious">Previous</button>
+    </div>
+    <nav id="classList"></nav>
+    <form id="addClassForm">
+      <input id="addClassInput" placeholder="Add a class" autocomplete="off">
+    </form>
+    <button id="settingsBtn" class="ghost">Settings</button>
+  </aside>
+  <main id="main"></main>
+  <div id="toast" hidden></div>
+  <dialog id="settingsDlg"></dialog>
+  <script src="app.js"></script>
+</body>
+</html>

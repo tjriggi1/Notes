@@ -1,0 +1,39 @@
+{
+  "name": "golisano-notes",
+  "version": "1.0.0",
+  "description": "Desktop class-notes app: type fast, press submit, get a polished Word document filed by class.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/smoke.js",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "license": "MIT",
+  "build": {
+    "appId": "edu.golisano.notes",
+    "productName": "Golisano Notes",
+    "artifactName": "Golisano-Notes-Setup.${ext}",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**",
+      "renderer/**",
+      "assets/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
