@@ -24,7 +24,7 @@ const { uploadToRepo } = require('../src/upload');
   assert.equal(q5.added, 2);
   const cls = store.addClass('Statistics');
   assert.throws(() => store.addClass('statistics'));
-  assert.equal(cls.folder, path.join('/tmp/Q5', 'Statistics'));
+  assert.equal(cls.folder, path.join(path.resolve('/tmp/Q5'), 'Statistics'));
   store.addSession({ id: 'old', classId: cls.id, date: '2026-09-01', createdAt: 'x', content: {}, title: 't', summary: 's' });
   const q6 = store.addQuarter('/tmp/Q6', ['Marketing']);
   assert.equal(store.data.currentQuarterId, q6.quarter.id);
