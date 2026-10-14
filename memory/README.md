@@ -1,0 +1,1 @@
+Digests of the class notes in `classes/`, written by the nightly review routine. One folder per quarter and class. The notes under `classes/` are the source of truth; these files are summaries to find things faster.
