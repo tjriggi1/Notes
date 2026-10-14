@@ -55,14 +55,19 @@ function localFormat(raw) {
   const sections = [];
   const keyTerms = [];
   let cur = null;
+  // Slide format ("1. Heading" with "- sub notes" under it): numbered lines are headings and
+  // sub notes stay where they were typed, so "term: definition" lines are not pulled out.
+  const structured = /^\s*\d+[.)]\s+\S/m.test(raw);
   const section = h => { cur = { heading: h, paragraphs: [], bullets: [] }; sections.push(cur); };
 
   for (const line of raw.split(/\r?\n/)) {
     if (!line.trim()) continue;
+    const num = line.match(/^\s*\d+[.)]\s+(\S.*)$/);
+    if (num) { section(tidy(num[1])); continue; }
     const h = headingText(line);
     if (h) { section(h); continue; }
     if (!cur) section('Notes');
-    const td = termDef(line);
+    const td = structured ? null : termDef(line);
     if (td) { keyTerms.push(td); continue; }
     const text = tidy(line);
     const words = text.split(' ').length;
@@ -73,7 +78,12 @@ function localFormat(raw) {
   const used = sections.filter(s => s.paragraphs.length || s.bullets.length);
   const heads = used.map(s => s.heading).filter(h => h !== 'Notes');
   const first = used[0]?.bullets[0] || used[0]?.paragraphs[0] || keyTerms[0]?.term || 'Class notes';
-  const title = heads[0] || (first.length > 60 ? first.slice(0, 57).replace(/\s+\S*$/, '') + '...' : first.replace(/\.$/, ''));
+  // Without the API there is no real "theme of the day", so name it from the slide headings.
+  const clip = s => (s.length > 60 ? s.slice(0, 57).replace(/\s+\S*$/, '') + '...' : s);
+  const title = heads.length >= 3 ? clip(`${heads[0]}, ${heads[1]} and ${heads.length - 2} more`)
+    : heads.length === 2 ? clip(`${heads[0]} and ${heads[1]}`)
+    : heads.length === 1 ? clip(heads[0])
+    : clip(first.replace(/\.$/, ''));
   const summary = heads.length
     ? `Covers ${heads.slice(0, 4).join(', ')}${heads.length > 4 ? ` and ${heads.length - 4} more topics` : ''}.`
     : `${used.reduce((n, s) => n + s.bullets.length + s.paragraphs.length, 0)} points from this session${keyTerms.length ? `, plus ${keyTerms.length} defined terms` : ''}.`;

@@ -132,7 +132,7 @@ app.whenReady().then(() => {
     const cls = store.data.classes.find(c => c.id === classId);
     if (!cls) throw new Error('Pick a class first.');
     raw = String(raw || '').trim();
-    if (!raw) throw new Error('There are no notes to submit.');
+    if (!raw.split('\n').some(l => l.replace(/^\s*(\d+[.)]|-)\s*/, '').trim())) throw new Error('There are no notes to submit.');
     date = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today();
 
     const s = store.data.settings;

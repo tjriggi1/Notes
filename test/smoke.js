@@ -14,6 +14,12 @@ const { uploadToRepo } = require('../src/upload');
   assert.match(lf.sections[0].bullets[0], /^Cost-plus with markup because simple/);
   assert.equal(lf.keyTerms[0].term, 'Elasticity');
   assert.match(lf.sections[0].bullets[1], /and premium/);
+  const slides = localFormat('1. pricing models\n- cost-plus w/ markup\n- value pricing: charge by perceived worth to buyer\n\n2. elasticity\n- demand changes when price moves\n');
+  assert.deepEqual(slides.sections.map(s => s.heading), ['Pricing models', 'Elasticity']);
+  assert.equal(slides.sections[0].bullets.length, 2);   // sub notes stay under their slide
+  assert.equal(slides.sections[1].bullets.length, 1);
+  assert.equal(slides.keyTerms.length, 0);
+  assert.equal(slides.title, 'Pricing models and Elasticity');
   const up = await uploadToRepo({ repo: '/tmp/definitely-not-a-repo', relPath: 'a.md', markdown: 'x', message: 'm' });
   assert.equal(up.ok, false);
 

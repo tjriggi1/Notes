@@ -117,12 +117,69 @@ function renderMain() {
   else renderAll(pane);
 }
 
+
+// ---- Slide-style note typing: "1. Heading", Tab for "- sub notes", Enter for the next number.
+const HEADER = /^\d+[.)]\s*\S/;
+const EMPTY_HEADER = /^\d+[.)]\s*$/;
+const BULLET_LINE = /^-\s*\S/;
+const EMPTY_BULLET = /^-\s*$/;
+
+// True when the text is only leftover "1." / "-" markers with nothing written.
+function isBlankNotes(text) {
+  return text.split('\n').every(l => !l.trim() || EMPTY_HEADER.test(l.trim()) || EMPTY_BULLET.test(l.trim()));
+}
+
+function insertAt(ta, from, to, text) {
+  ta.focus();
+  ta.setSelectionRange(from, to);
+  // execCommand keeps Ctrl+Z working; fall back to a plain edit if it is unavailable.
+  if (!document.execCommand('insertText', false, text)) {
+    ta.setRangeText(text, from, to, 'end');
+    ta.dispatchEvent(new Event('input'));
+  }
+}
+
+function slideKey(e) {
+  const ta = e.target;
+  if ((e.key !== 'Tab' && e.key !== 'Enter') || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+  if (ta.selectionStart !== ta.selectionEnd) return;
+  const v = ta.value;
+  const pos = ta.selectionStart;
+  const lineStart = v.lastIndexOf('\n', pos - 1) + 1;
+  let lineEnd = v.indexOf('\n', pos);
+  if (lineEnd < 0) lineEnd = v.length;
+  const line = v.slice(lineStart, lineEnd).trim();
+
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    if (EMPTY_BULLET.test(line) || EMPTY_HEADER.test(line)) return;   // already waiting for text
+    if (!line) insertAt(ta, lineEnd, lineEnd, '- ');
+    else insertAt(ta, lineEnd, lineEnd, '\n- ');
+    return;
+  }
+
+  // Enter: only take over at the end of a heading or sub note line.
+  if (pos !== lineEnd) return;
+  const onHeading = HEADER.test(line);
+  const onBullet = BULLET_LINE.test(line);
+  const onEmptyBullet = EMPTY_BULLET.test(line);
+  if (!onHeading && !onBullet && !onEmptyBullet) return;
+  let n = 0;
+  for (const l of v.slice(0, lineEnd).split('\n')) {
+    const m = l.trim().match(/^(\d+)[.)]\s/);
+    if (m) n = Number(m[1]);
+  }
+  e.preventDefault();
+  if (onEmptyBullet) insertAt(ta, lineStart, lineEnd, `\n${n + 1}. `);   // blank line, then next heading
+  else insertAt(ta, lineEnd, lineEnd, `\n\n${n + 1}. `);
+}
+
 function renderNew(pane, cls) {
   pane.style.display = 'flex';
   pane.style.flexDirection = 'column';
   const editor = el('textarea', {
     id: 'editor',
-    placeholder: 'Type quickly. Fragments and shorthand are fine; they get cleaned up when you submit.',
+    placeholder: '1. Slide name\n- Tab adds a sub note\n- Enter starts the next numbered slide',
     value: S.drafts[cls.id] || '',
     spellcheck: true,
   });
@@ -130,10 +187,12 @@ function renderNew(pane, cls) {
   const count = el('span', {}, '');
   const submit = el('button', { class: 'primary' }, 'Submit');
   const updateCount = () => {
-    const w = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
+    const body = editor.value.replace(/^\s*(\d+[.)]|-)\s*/gm, '').trim();
+    const w = body ? body.split(/\s+/).length : 0;
     count.textContent = `${w} words`;
   };
   updateCount();
+  editor.addEventListener('keydown', slideKey);
   editor.addEventListener('input', () => {
     updateCount();
     S.drafts[cls.id] = editor.value;
@@ -141,7 +200,7 @@ function renderNew(pane, cls) {
     saveTimer = setTimeout(() => window.api.saveDraft(cls.id, editor.value), 400);
   });
   submit.addEventListener('click', async () => {
-    if (!editor.value.trim()) return toast('Type some notes first.', true);
+    if (isBlankNotes(editor.value)) return toast('Type some notes first.', true);
     submit.disabled = true;
     submit.textContent = 'Polishing and saving...';
     clearTimeout(saveTimer);
@@ -160,8 +219,10 @@ function renderNew(pane, cls) {
   pane.append(el('div', { class: 'new-wrap' },
     el('div', { class: 'meta' }, 'Class date', date),
     editor,
-    el('div', { class: 'bar' }, count, submit)));
+    el('div', { class: 'bar' }, count, el('span', { class: 'hint' }, 'Tab: sub note   Enter: next slide'), submit)));
   editor.focus();
+  if (!editor.value) editor.value = '1. ';   // start the first slide heading
+  editor.setSelectionRange(editor.value.length, editor.value.length);
 }
 
 function renderPrevious(pane) {
