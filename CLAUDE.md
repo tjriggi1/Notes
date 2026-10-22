@@ -6,7 +6,8 @@ When the user asks a question that could relate to any class they are taking (co
 
 1. Search `memory/` first, then `classes/` (Grep, then Read the matching files). `memory/` holds digests (summary, key terms, gaps) written by the nightly review routine; `classes/` holds the full notes and is the source of truth. Answer from those notes and say which class and date it came from.
 2. If the notes do not cover it, say so, then use other research. Keep the two apart: what came from their notes vs. what came from elsewhere.
-3. Never present something as "from your notes" unless it appears in them.
+3. Never present something as "from your notes" unless it appears in them. Notes have parts Claude added at submit time: "Added context (not from class)" blocks, key terms marked "(added, not from class)", charts marked "illustrative values", and review questions. Treat those as Claude's additions, not as what the teacher said.
+4. Pasted slide graphs are saved next to each note in `images/`. Read the image when a question depends on it.
 
 Notes are only as current as the last time the user added files under `classes/`.
 

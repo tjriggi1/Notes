@@ -35,5 +35,8 @@
       "createDesktopShortcut": false,
       "createStartMenuShortcut": true
     }
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.1.0"
   }
 }

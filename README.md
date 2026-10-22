@@ -24,6 +24,9 @@ Make the Q6 folder with one folder per class, then File > Add quarter folder and
 
 - Each class has three tabs: **New notes**, **Previous notes** (date plus a short description of each day), and **All notes** (every day in one scrolling page).
 - **Slide-style typing:** the page starts with `1. `. Type the slide name, press **Tab** for a sub note (`- `), Tab again for the next one, and **Enter** to skip a line and start `2. `. Submit keeps each sub note under the heading above it, and the day's title is chosen from all the slides (by Claude when an API key is set; from the slide headings otherwise).
+- **Notes under sub notes:** press **Shift+Tab** on a sub note to add an indented note under it. Tab goes back to a normal sub note.
+- **Slide graphs:** paste a screenshot (Win+Shift+S, then Ctrl+V), drag an image onto the page, or click **Add graph**. A `[Graph 1]` marker shows where it goes. You can also type a line starting with `Graph:` to describe a graph, and Claude draws it.
+- **What Claude adds on Submit:** definitions for every key term (marked *Added* when the class didn't define them, with web sources when it searched), short "added context" boxes, explanations of pasted graphs, charts where they help (marked when the values are only illustrative), takeaways and review questions. Web lookups can be turned off in Settings.
 - Your draft autosaves as you type.
 - **Submit** polishes the notes and writes `<quarter>/<class>/<date> - <title>.html`, refreshes `All notes.html`, and writes a Markdown copy in `for-claude/`.
 - **Auto-upload:** if the app runs from a clone of this repo (or Settings > Notes repo folder points at one), Submit also commits and pushes the Markdown to `classes/<quarter>/<class>/`. It uses the git login already on your computer, so no token is stored. If the push fails, the notes are still saved and a warning says why.

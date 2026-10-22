@@ -5,6 +5,9 @@ const { Store } = require('./src/store');
 const { polish } = require('./src/polish');
 const { uploadToRepo } = require('./src/upload');
 const { sessionPage, allNotesPage, toMarkdown } = require('./src/pageBuilder');
+const { chartSvg, chartTable } = require('./src/chartSvg');
+
+const IMAGE_TYPES = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif' };
 
 let store;
 let win;
@@ -43,6 +46,7 @@ function snapshot() {
     currentQuarterId: d.currentQuarterId,
     sessions: d.sessions.map(({ raw, ...s }) => s),
     drafts: d.drafts,
+    draftImages: d.draftImages,
     settings: publicSettings(),
     today: today(),
   };
@@ -84,6 +88,30 @@ function classDir(q5, className) {
   return path.join(q5, safeName(className));
 }
 
+function imagesDir() {
+  return path.join(app.getPath('userData'), 'images');
+}
+
+// Only files the app saved itself can be read back.
+function imageFile(file) {
+  const abs = path.resolve(imagesDir(), path.basename(String(file)));
+  if (!abs.startsWith(imagesDir() + path.sep) || !fs.existsSync(abs)) throw new Error('Image not found.');
+  return abs;
+}
+
+function readImage(img) {
+  return { mime: img.mime, data: fs.readFileSync(imageFile(img.file)).toString('base64') };
+}
+
+// { "graph 1": { mime, data } } for a session's pasted graphs; missing files are skipped.
+function imageMap(images) {
+  const out = {};
+  for (const img of images || []) {
+    try { out[img.label.toLowerCase()] = readImage(img); } catch (_) {}
+  }
+  return out;
+}
+
 function uniquePath(dir, base, ext) {
   let p = path.join(dir, base + ext);
   for (let i = 2; fs.existsSync(p); i++) p = path.join(dir, `${base} (${i})${ext}`);
@@ -113,6 +141,37 @@ app.whenReady().then(() => {
 
   ipcMain.handle('draft:save', (_, classId, text) => { store.setDraft(classId, String(text || '')); });
 
+  // Pasted or picked slide graph: the renderer has already scaled it down.
+  ipcMain.handle('image:add', (_, classId, bytes, mime) => {
+    const ext = IMAGE_TYPES[mime];
+    if (!ext) throw new Error('Only PNG, JPEG, WebP or GIF images can be added.');
+    const buf = Buffer.from(bytes);
+    if (buf.length > 5 * 1024 * 1024) throw new Error('That image is too large (over 5 MB).');
+    fs.mkdirSync(imagesDir(), { recursive: true });
+    const file = store.id() + ext;
+    fs.writeFileSync(path.join(imagesDir(), file), buf);
+    const list = [...(store.data.draftImages[classId] || [])];
+    const next = Math.max(0, ...list.map(i => Number(i.label.replace(/\D/g, '')) || 0)) + 1;
+    const label = `Graph ${next}`;
+    list.push({ label, file, mime });
+    store.setDraftImages(classId, list);
+    return { state: snapshot(), label };
+  });
+
+  ipcMain.handle('image:remove', (_, classId, label) => {
+    const list = store.data.draftImages[classId] || [];
+    const gone = list.find(i => i.label === label);
+    if (gone) { try { fs.unlinkSync(imageFile(gone.file)); } catch (_) {} }
+    store.setDraftImages(classId, list.filter(i => i.label !== label));
+    return snapshot();
+  });
+
+  ipcMain.handle('image:data', (_, file, mime) => {
+    const ext = path.extname(String(file)).toLowerCase();
+    const type = mime || Object.keys(IMAGE_TYPES).find(k => IMAGE_TYPES[k] === ext) || 'image/png';
+    return `data:${type};base64,${fs.readFileSync(imageFile(file)).toString('base64')}`;
+  });
+
   ipcMain.handle('settings:set', (_, patch) => {
     // Blank secret fields mean "keep what is stored".
     const p = { ...patch };
@@ -137,12 +196,19 @@ app.whenReady().then(() => {
 
     const s = store.data.settings;
     const warnings = [];
+    const images = (store.data.draftImages[classId] || []).filter(i => { try { imageFile(i.file); return true; } catch (_) { return false; } });
     const result = await polish({
       raw, className: cls.name, date,
       apiKey: s.anthropicKey || process.env.ANTHROPIC_API_KEY || '',
       model: s.model,
+      images: images.map(i => ({ label: i.label, ...readImage(i) })),
+      research: s.webResearch !== 'off',
     });
     if (result.warning) warnings.push(result.warning);
+    // Pre-render charts so the app can show them without any chart code of its own.
+    for (const sec of result.content.sections) {
+      for (const ch of sec.charts || []) { ch.svg = chartSvg(ch); ch.table = chartTable(ch); }
+    }
 
     const session = {
       id: store.id(), classId, date,
@@ -152,6 +218,7 @@ app.whenReady().then(() => {
       polished: result.polished,
       content: result.content,
       raw,
+      images,
       pagePath: null,
     };
 
@@ -162,17 +229,25 @@ app.whenReady().then(() => {
       fs.mkdirSync(dir, { recursive: true });
       const base = `${date} - ${safeName(session.title)}`;
       const file = uniquePath(dir, base, '.html');
-      fs.writeFileSync(file, sessionPage(session, cls.name));
+      fs.writeFileSync(file, sessionPage(session, cls.name, imageMap(images)));
       session.pagePath = file;
-      fs.writeFileSync(path.join(dir, 'All notes.html'), allNotesPage([...store.sessionsFor(classId), session], cls.name));
+      fs.writeFileSync(path.join(dir, 'All notes.html'),
+        allNotesPage([...store.sessionsFor(classId), session], cls.name, x => imageMap(x.images)));
+      // Markdown copy for Claude, with each pasted graph saved next to it.
+      const imageFiles = images.map(i => ({ i, name: `${base} - ${i.label}${path.extname(i.file)}` }));
+      const imagePaths = Object.fromEntries(imageFiles.map(({ i, name }) => [i.label.toLowerCase(), `images/${name}`]));
+      const md = toMarkdown(session, cls.name, imagePaths);
       const mdDir = path.join(dir, 'for-claude');
-      fs.mkdirSync(mdDir, { recursive: true });
-      const md = toMarkdown(session, cls.name);
+      fs.mkdirSync(path.join(mdDir, 'images'), { recursive: true });
       fs.writeFileSync(uniquePath(mdDir, base, '.md'), md);
+      imageFiles.forEach(({ i, name }) => fs.copyFileSync(imageFile(i.file), path.join(mdDir, 'images', name)));
+      const repoDir = path.join('classes', safeName(quarter.name), safeName(cls.name));
       const up = await uploadToRepo({
         repo: notesRepo(),
-        relPath: path.join('classes', safeName(quarter.name), safeName(cls.name), `${base}.md`),
-        markdown: md,
+        files: [
+          { relPath: path.join(repoDir, `${base}.md`), content: md },
+          ...imageFiles.map(({ i, name }) => ({ relPath: path.join(repoDir, 'images', name), content: fs.readFileSync(imageFile(i.file)) })),
+        ],
         message: `Add ${cls.name} notes for ${date}`,
       });
       if (up.ok) session.uploaded = true;

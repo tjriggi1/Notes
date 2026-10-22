@@ -18,17 +18,22 @@ function git(repo, args) {
   });
 }
 
+// files: [{ relPath, content (string or Buffer) }]; relPath/markdown is the one-file shorthand.
 // Returns { ok, warning? }. Never throws: a failed upload must not lose the notes.
-async function uploadToRepo({ repo, relPath, markdown, message }) {
+async function uploadToRepo({ repo, relPath, markdown, files, message }) {
+  files = files || [{ relPath, content: markdown }];
   if (!repo || !fs.existsSync(path.join(repo, '.git'))) {
     return { ok: false, warning: 'Auto-upload is off: no notes repo found. Set "Notes repo folder" in Settings to a clone of your notes repo.' };
   }
   try {
-    const abs = path.join(repo, relPath);
-    fs.mkdirSync(path.dirname(abs), { recursive: true });
-    fs.writeFileSync(abs, markdown);
-    await git(repo, ['add', '--', relPath]);
-    await git(repo, ['commit', '-m', message, '--', relPath]);
+    for (const f of files) {
+      const abs = path.join(repo, f.relPath);
+      fs.mkdirSync(path.dirname(abs), { recursive: true });
+      fs.writeFileSync(abs, f.content);
+    }
+    const paths = files.map(f => f.relPath);
+    await git(repo, ['add', '--', ...paths]);
+    await git(repo, ['commit', '-m', message, '--', ...paths]);
     try {
       await git(repo, ['push', 'origin', 'HEAD']);
     } catch (_) {

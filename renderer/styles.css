@@ -73,3 +73,46 @@ dialog button:not(.primary) { background: none; border: 1px solid var(--line); c
 .cls .sub { display: block; font-size: 11px; opacity: .6; }
 
 .bar .hint { font-size: 13px; }
+
+/* Pasted slide graphs, waiting to be submitted */
+.thumbs { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.thumbs:empty { display: none; }
+.thumb { position: relative; width: 132px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 6px; font-size: 12px; color: var(--muted); text-align: center; }
+.thumb img { width: 100%; height: 76px; object-fit: contain; display: block; margin-bottom: 4px; }
+.thumb .x { position: absolute; top: 2px; right: 4px; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 16px; }
+.bar .actions { display: flex; gap: 8px; }
+button.secondary { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 10px 16px; font: inherit; cursor: pointer; }
+button.secondary:hover { border-color: var(--accent-2); }
+/* Polished notes */
+.doc li ul { margin: 2px 0 4px; }
+.doc figure { margin: 16px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.doc figure img { max-width: 100%; display: block; margin: 0 auto; border-radius: 6px; }
+.doc figcaption { font-size: 14px; margin-top: 8px; }
+.doc figcaption strong { display: block; }
+.doc .illus { color: var(--muted); font-size: 13px; }
+.doc details { font-size: 13px; margin-top: 6px; }
+.doc details summary { cursor: pointer; color: var(--muted); }
+.doc .added { background: color-mix(in srgb, #c9a227 12%, transparent); border-left: 3px solid #c9a227; padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 10px 0; }
+.doc .added b, .doc .tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.doc .added b { display: block; }
+.doc .added p { margin: 4px 0; }
+.doc .tag { border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; margin-left: 6px; white-space: nowrap; }
+.doc .sources { font-size: 13px; color: var(--muted); word-break: break-word; }
+/* Charts (same tokens as the saved pages) */
+
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:-apple-system,"Segoe UI",Calibri,sans-serif}
+.c-grid{stroke:var(--c-grid,#e3e6ea);stroke-width:1}
+.c-axis{stroke:var(--c-axis,#9aa3ad);stroke-width:1}
+.c-ink{fill:var(--c-ink,#1d232c)}
+.c-muted{fill:var(--c-muted,#5d6672)}
+.c-ring{stroke:var(--c-surface,#ffffff)}
+.c-s1{stroke:var(--s1,#2a78d6)}.c-s1f{fill:var(--s1,#2a78d6)}
+.c-s2{stroke:var(--s2,#eb6834)}.c-s2f{fill:var(--s2,#eb6834)}
+.c-s3{stroke:var(--s3,#1baf7a)}.c-s3f{fill:var(--s3,#1baf7a)}
+.c-s4{stroke:var(--s4,#eda100)}.c-s4f{fill:var(--s4,#eda100)}
+@media(prefers-color-scheme:dark){:root{--c-grid:#2b3441;--c-axis:#6b7684;--c-ink:#e6eaf0;--c-muted:#98a3b3;--c-surface:#1b212b;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500}}
+.chart-table{border-collapse:collapse;font-size:14px;margin-top:6px}
+.chart-table th,.chart-table td{border:1px solid var(--line);padding:4px 10px;text-align:right}
+.chart-table th:first-child,.chart-table td:first-child{text-align:left}
+.doc .chart-table td:first-child { width: auto; font-weight: 400; background: none; }

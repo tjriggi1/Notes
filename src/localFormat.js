@@ -51,14 +51,15 @@ function termDef(line) {
   return { term: tidy(term), definition: endSentence(tidy(m[2])) };
 }
 
-function localFormat(raw) {
+function localFormat(raw, images = []) {
   const sections = [];
   const keyTerms = [];
   let cur = null;
   // Slide format ("1. Heading" with "- sub notes" under it): numbered lines are headings and
   // sub notes stay where they were typed, so "term: definition" lines are not pulled out.
   const structured = /^\s*\d+[.)]\s+\S/m.test(raw);
-  const section = h => { cur = { heading: h, paragraphs: [], bullets: [] }; sections.push(cur); };
+  const section = h => { cur = { heading: h, paragraphs: [], bullets: [], added: [], figures: [], charts: [] }; sections.push(cur); };
+  const hasImage = new Set(images.map(i => i.label.toLowerCase()));
 
   for (const line of raw.split(/\r?\n/)) {
     if (!line.trim()) continue;
@@ -67,17 +68,35 @@ function localFormat(raw) {
     const h = headingText(line);
     if (h) { section(h); continue; }
     if (!cur) section('Notes');
+    // "[Graph 2]" marks where a pasted slide graph goes.
+    const graph = line.trim().match(/^\[(graph \d+)[^\]]*\]$/i);
+    if (graph) {
+      const ref = graph[1].replace(/^g/, 'G');
+      if (hasImage.has(ref.toLowerCase())) cur.figures.push({ ref, title: '', explanation: '' });
+      continue;
+    }
+    // Indented "    - text" is a sub note of the bullet above it.
+    const nested = /^\s{2,}[-*\u2022]\s+\S/.test(line) || /^\t+[-*\u2022]\s+\S/.test(line);
+    const last = cur.bullets[cur.bullets.length - 1];
+    if (nested && last) { last.sub.push(endSentence(tidy(line))); continue; }
     const td = structured ? null : termDef(line);
     if (td) { keyTerms.push(td); continue; }
     const text = tidy(line);
     const words = text.split(' ').length;
     if (!BULLET.test(line) && words >= 14) cur.paragraphs.push(endSentence(text));
-    else cur.bullets.push(endSentence(text));
+    else cur.bullets.push({ text: endSentence(text), sub: [] });
+  }
+  // A pasted graph whose marker was deleted still belongs in the notes: put it in the last section.
+  const placed = new Set(sections.flatMap(s => s.figures.map(f => f.ref.toLowerCase())));
+  const spare = images.filter(i => !placed.has(i.label.toLowerCase()));
+  if (spare.length) {
+    if (!cur) section('Notes');
+    spare.forEach(i => cur.figures.push({ ref: i.label, title: '', explanation: '' }));
   }
 
-  const used = sections.filter(s => s.paragraphs.length || s.bullets.length);
+  const used = sections.filter(s => s.paragraphs.length || s.bullets.length || s.figures.length);
   const heads = used.map(s => s.heading).filter(h => h !== 'Notes');
-  const first = used[0]?.bullets[0] || used[0]?.paragraphs[0] || keyTerms[0]?.term || 'Class notes';
+  const first = used[0]?.bullets[0]?.text || used[0]?.paragraphs[0] || keyTerms[0]?.term || 'Class notes';
   // Without the API there is no real "theme of the day", so name it from the slide headings.
   const clip = s => (s.length > 60 ? s.slice(0, 57).replace(/\s+\S*$/, '') + '...' : s);
   const title = heads.length >= 3 ? clip(`${heads[0]}, ${heads[1]} and ${heads.length - 2} more`)
@@ -88,7 +107,8 @@ function localFormat(raw) {
     ? `Covers ${heads.slice(0, 4).join(', ')}${heads.length > 4 ? ` and ${heads.length - 4} more topics` : ''}.`
     : `${used.reduce((n, s) => n + s.bullets.length + s.paragraphs.length, 0)} points from this session${keyTerms.length ? `, plus ${keyTerms.length} defined terms` : ''}.`;
 
-  return { title, summary, sections: used, keyTerms, takeaways: [] };
+  keyTerms.forEach(k => { k.source = 'class'; });
+  return { title, summary, sections: used, keyTerms, takeaways: [], reviewQuestions: [], sources: [] };
 }
 
 module.exports = { localFormat };
