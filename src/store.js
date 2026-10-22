@@ -8,13 +8,14 @@ const DEFAULT_SETTINGS = {
   anthropicKey: '',
   model: 'claude-sonnet-5-5',
   notesRepo: '', // local clone of the notes repo; blank = auto-detect the app's own folder
+  webResearch: 'on', // let Claude search the web to define terms the notes don't explain
 };
 
 class Store {
   constructor(dir) {
     this.dir = dir;
     this.file = path.join(dir, 'notes-data.json');
-    this.data = { classes: [], sessions: [], drafts: {}, quarters: [], currentQuarterId: null, settings: { ...DEFAULT_SETTINGS } };
+    this.data = { classes: [], sessions: [], drafts: {}, draftImages: {}, quarters: [], currentQuarterId: null, settings: { ...DEFAULT_SETTINGS } };
     this.load();
   }
 
@@ -26,6 +27,7 @@ class Store {
         classes: p.classes || [],
         sessions: p.sessions || [],
         drafts: p.drafts || {},
+        draftImages: p.draftImages || {},
         quarters: p.quarters || [],
         currentQuarterId: p.currentQuarterId || null,
         settings: { ...DEFAULT_SETTINGS, ...(p.settings || {}) },
@@ -116,6 +118,7 @@ class Store {
     this.data.classes = this.data.classes.filter(c => c.id !== id);
     this.data.sessions = this.data.sessions.filter(s => s.classId !== id);
     delete this.data.drafts[id];
+    delete this.data.draftImages[id];
     this.save();
   }
 
@@ -124,9 +127,16 @@ class Store {
     this.save();
   }
 
+  // Pasted slide graphs waiting to be submitted with a class's draft: [{ label, file, mime }]
+  setDraftImages(classId, list) {
+    if (list && list.length) this.data.draftImages[classId] = list; else delete this.data.draftImages[classId];
+    this.save();
+  }
+
   addSession(session) {
     this.data.sessions.push(session);
     delete this.data.drafts[session.classId];
+    delete this.data.draftImages[session.classId];
     this.save();
   }
 
