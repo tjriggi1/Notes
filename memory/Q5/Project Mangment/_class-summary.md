@@ -13,3 +13,7 @@ Digest: `2026-10-19 - Adaptive Approach in Project Management.md`
 ## 2026-10-22: Adaptive Project Stages Concept to Delivery
 Adaptive projects have three apparent stages: Concept, Construct and Deliver, Close. Concept produces a vision statement and a product roadmap (requirements with tentative release dates, stakeholder management plan, team charter). Construct and Deliver decomposes requirements into epics, features and user stories, does release planning, keeps a prioritized product backlog, estimates in hours or story points, and runs daily standups, an iteration review and a retrospective. The Close stage is not detailed in the notes.
 Digest: `2026-10-22 - Adaptive Project Stages Concept to Delivery.md`
+
+## 2026-10-26: Lean Thinking and Agile Delivery Approaches
+Lean management aims to increase production efficiency by reducing lead time, supplier/customer response time, non-value-adding resources and waste, with a central target of reducing WIP and wait time between stages. Eight Lean targets: delay/waiting, overproduction, overprocessing, non-value-adding activities, transportation, motion, excess inventory, defects. Iteration-based Agile uses equal-length sprints and similar-sized features, estimating by number of sprints; flow-based Agile pulls work as capacity allows, with varying sprint time and effort, continuous delivery, and WIP and cycle time as KPIs.
+Digest: `2026-10-26 - Lean Thinking and Agile Delivery Approaches.md`
