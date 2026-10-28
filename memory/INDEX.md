@@ -12,3 +12,4 @@
 | Q5 | Project Mangment | 2026-10-22 | Adaptive Project Stages Concept to Delivery | Concept, Construct and Deliver, Close; vision statement, product roadmap, epics/features/user stories, standups, review, retrospective. |
 | Q5 | Sales II | 2026-10-22 | Six Customer Engagement Metrics Overview | NPS, CLV, CSAT, CES, CWF and CM: what each customer engagement metric measures. |
 | Q5 | Project Mangment | 2026-10-26 | Lean Thinking and Agile Delivery Approaches | Lean goals and eight waste targets; iteration-based (equal sprints) vs. flow-based (continuous, WIP and cycle time) Agile. |
+| Q5 | Business Analytics II | 2026-10-27 | Forecasting Foundations: Smoothing, Splits, Baselines | Trend + season + noise and smoothing; time splits and walk-forward backtests; naive, simple MA, weighted MA and seasonal naive baselines. |

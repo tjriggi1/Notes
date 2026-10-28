@@ -13,3 +13,7 @@ Digest: `2026-10-20 - Dimension Reduction and Neighbor-Based Prediction.md`
 ## 2026-10-22: K-means Clustering and Choosing K
 The teacher showed a bar chart of K (1 to 10) against variation (0 to 100): variation falls as K increases, K = 1 tallest. Bar heights were not recorded. Elbow-method reasoning in the note is outside context, not from class; it fits the 2026-10-16 elbow plot.
 Digest: `2026-10-22 - K-means Clustering and Choosing K.md`
+
+## 2026-10-27: Forecasting Foundations: Smoothing, Splits, Baselines
+Every series is trend + season + noise. Smoothing averages neighbors on both sides to show the trend (wider window = smoother; 13 months removes the season) but describes the past only and cannot forecast. Never shuffle time: use a time split, and backtest by walking forward and averaging error across windows. Four baselines: naive (lags turns), simple MA (smooth but flat; k is a dial, same trade-off as KNN's k), weighted MA (faster but still flat; example 110 vs simple 105), seasonal naive (catches season, cannot see growth).
+Digest: `2026-10-27 - Forecasting Foundations Smoothing, Splits, Baselines.md`
