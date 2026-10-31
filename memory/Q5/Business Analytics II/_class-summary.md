@@ -17,3 +17,7 @@ Digest: `2026-10-22 - K-means Clustering and Choosing K.md`
 ## 2026-10-27: Forecasting Foundations: Smoothing, Splits, Baselines
 Every series is trend + season + noise. Smoothing averages neighbors on both sides to show the trend (wider window = smoother; 13 months removes the season) but describes the past only and cannot forecast. Never shuffle time: use a time split, and backtest by walking forward and averaging error across windows. Four baselines: naive (lags turns), simple MA (smooth but flat; k is a dial, same trade-off as KNN's k), weighted MA (faster but still flat; example 110 vs simple 105), seasonal naive (catches season, cannot see growth).
 Digest: `2026-10-27 - Forecasting Foundations Smoothing, Splits, Baselines.md`
+
+## 2026-10-30: Forecasting Sales and Ordering Decisions
+Smoothing is a weighted average: new level = a * this week + (1 - a) * old level (alpha 0.5 forgets fast, 0.2 slowly). Holt-Winters tracks level, trend and season, each with its own dial; additive when the seasonal swing is constant (garden center +20,000), multiplicative when it grows with the business (gift shop, November about 2x). A forecast becomes an 80% range by multiplying it by the middle 80% of past actual/forecast ratios (e.g. 0.85 to 1.25); it should catch about 8 weeks in 10, and quiet-month or short histories make it too narrow. Order using critical ratio Cu / (Cu + Co); Maya: 0.40/(0.40+0.15) is about 73%.
+Digest: `2026-10-30 - Forecasting Sales and Ordering Decisions.md`

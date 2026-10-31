@@ -14,3 +14,4 @@
 | Q5 | Project Mangment | 2026-10-26 | Lean Thinking and Agile Delivery Approaches | Lean goals and eight waste targets; iteration-based (equal sprints) vs. flow-based (continuous, WIP and cycle time) Agile. |
 | Q5 | Business Analytics II | 2026-10-27 | Forecasting Foundations: Smoothing, Splits, Baselines | Trend + season + noise and smoothing; time splits and walk-forward backtests; naive, simple MA, weighted MA and seasonal naive baselines. |
 | Q5 | Finance | 2026-10-29 | Scrum Timeboxing and Adaptive Agile Approaches | Timeboxing in a 4-week sprint (Retrospective 45 min per week, Sprint Review), Kanban for unpredictable work, Disciplined Agile and SAFe. |
+| Q5 | Business Analytics II | 2026-10-30 | Forecasting Sales and Ordering Decisions | Exponential smoothing and Holt-Winters (level, trend, season; additive vs. multiplicative); 80% forecast ranges from past ratios; critical ratio Cu/(Cu+Co) (Maya: about 73%). |
