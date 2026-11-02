@@ -2,72 +2,70 @@
 
 *Finance · 2026-11-02*
 
-> This session covered the basic balance sheet identity, which links net working capital and fixed assets to long-term debt and equity. It also covered how to rearrange that identity to solve for cash. The second half defined the operating cycle and the cash cycle and showed how they are calculated.
+> This session covered the basic balance sheet identity and how it links net working capital, fixed assets, long-term debt, equity and cash. It then defined the operating cycle and the cash cycle in terms of the inventory, accounts receivable and accounts payable periods.
 
 ## Basic balance sheet identity
 
-The balance sheet can be rearranged into a form that focuses on net working capital. In this form, net working capital plus fixed assets equals long-term debt plus equity. The notes then show how to solve this relationship for cash.
+The balance sheet identity can be written in a form that puts net working capital and fixed assets on one side. Long-term debt and equity go on the other side. From this form you can also solve for the firm's cash.
 
-- Net working capital + Fixed assets = Long-term debt + Equity.
-- Net working capital = Cash + Current assets - Current liabilities. Here, current assets means current assets other than cash, because cash is listed separately.
-- Cash = Long-term debt + Equity + Current liabilities - Current assets other than cash - Fixed assets.
+- Net working capital plus fixed assets equals long-term debt plus equity.
+- Net working capital equals cash plus current assets minus current liabilities.
+- Cash equals long-term debt plus equity plus current liabilities, minus current assets other than cash, minus fixed assets.
 
 *Added context (not from class):*
 
-> This identity comes from the usual balance sheet equation, Assets = Liabilities + Equity. Current assets and fixed assets make up the assets. Current liabilities are moved to the asset side by subtracting them, which gives net working capital. Long-term debt and equity stay on the financing side.
+> In the net working capital formula, 'current assets' means current assets other than cash, such as inventory and accounts receivable. Cash is listed separately so it is not counted twice. If current assets already include cash, net working capital is simply current assets minus current liabilities.
 
-> The cash formula comes from substituting the net working capital formula into the identity and solving for cash. In words, cash is what is left after long-term financing and current liabilities have paid for the non-cash current assets and the fixed assets.
-
-> Many textbooks define net working capital as total current assets (including cash) minus current liabilities. That is the same as the notes' version once current assets in the notes are read as excluding cash.
+> The cash formula comes from rearranging the identity. Start with (cash + other current assets - current liabilities) + fixed assets = long-term debt + equity. Then move everything except cash to the right-hand side. This shows that cash is the balancing item: the financing a firm raises, less what it spends on other assets.
 
 ## The operating cycle and cash cycle
 
-These two cycles measure how long it takes a firm to turn its investment in inventory back into cash. The operating cycle looks only at inventory and receivables. The cash cycle also subtracts the time the firm takes to pay its suppliers.
+The operating cycle and the cash cycle measure how long it takes a firm to turn its investment in inventory back into cash. The cash cycle also takes into account the time the firm has to pay its suppliers.
 
 - The operating cycle has 2 components.
     - The inventory period.
     - The accounts receivable period.
-    - Operating cycle = Inventory period + Accounts receivable period.
+    - Operating cycle = inventory period + accounts receivable period.
 - The cash cycle has 3 components.
     - The inventory period.
     - The accounts receivable period.
     - The accounts payable period.
-    - Cash cycle = Operating cycle - Accounts payable period.
+    - Cash cycle = operating cycle - accounts payable period.
 
 *Added context (not from class):*
 
-> The inventory period is the average time it takes to sell inventory after acquiring it. The accounts receivable period is the average time it takes to collect cash from customers after a sale. The accounts payable period is the average time the firm takes to pay its suppliers.
+> The inventory period is the time it takes to buy or produce inventory and sell it. The accounts receivable period is the time it takes to collect cash from customers after a sale. The accounts payable period is the time the firm takes to pay its suppliers.
 
-> The operating cycle runs from acquiring inventory to collecting cash from its sale. The cash cycle runs from paying cash for inventory to collecting cash from the sale. A longer payable period shortens the cash cycle, so the firm needs less financing for its working capital.
+> The operating cycle covers the time from acquiring inventory to collecting cash from the sale. The cash cycle is shorter, because the firm pays suppliers some time after buying inventory. A longer cash cycle means the firm needs more financing to run its operations.
 
-> Example: if the inventory period is 60 days, the receivable period is 30 days and the payable period is 40 days, the operating cycle is 90 days and the cash cycle is 50 days.
+> Example: if inventory sits for 60 days, customers take 30 days to pay and the firm pays suppliers after 40 days, the operating cycle is 90 days. The cash cycle is then 90 - 40 = 50 days. These numbers are only an illustration.
 
 ## Key terms
 
-- **Balance sheet identity**: The relationship that net working capital plus fixed assets equals long-term debt plus equity.
-- **Net working capital**: Cash plus other current assets minus current liabilities. It measures the short-term resources the firm has after covering its short-term obligations.
-- **Fixed assets**: Long-lived assets the firm uses in its operations, such as property, plant and equipment. *(added, not from class)*
-- **Long-term debt**: Borrowing that is due more than one year from now. It is part of the firm's long-term financing. *(added, not from class)*
-- **Equity**: The owners' claim on the firm's assets. It is the residual left after liabilities are subtracted from assets. *(added, not from class)*
-- **Current liabilities**: Obligations the firm must pay within one year, such as accounts payable and short-term debt. *(added, not from class)*
-- **Operating cycle**: The inventory period plus the accounts receivable period. It is the time from acquiring inventory to collecting cash from its sale.
-- **Cash cycle**: The operating cycle minus the accounts payable period. It is the time between paying for inventory and collecting cash from the sale.
-- **Inventory period**: The average length of time it takes the firm to sell its inventory. It is the first component of both cycles. *(added, not from class)*
-- **Accounts receivable period**: The average length of time it takes to collect payment from customers after a sale. *(added, not from class)*
-- **Accounts payable period**: The average length of time the firm takes to pay its suppliers. It is subtracted from the operating cycle to get the cash cycle. *(added, not from class)*
+- **Balance sheet identity**: The relationship that net working capital plus fixed assets equals long-term debt plus equity. It is a rearranged form of assets = liabilities + equity.
+- **Net working capital**: Cash plus other current assets minus current liabilities. It measures the firm's short-term liquid resources after short-term obligations are covered.
+- **Fixed assets**: Long-lived assets such as property, plant and equipment that the firm uses over many years rather than selling in the normal course of business. *(added, not from class)*
+- **Long-term debt**: Borrowing that is due in more than one year. It is a source of financing on the right side of the balance sheet identity. *(added, not from class)*
+- **Equity**: The owners' residual claim on the firm's assets after debts are paid. It is a source of financing alongside long-term debt. *(added, not from class)*
+- **Current liabilities**: Obligations that are due within one year, such as accounts payable. They are subtracted when calculating net working capital. *(added, not from class)*
+- **Operating cycle**: The time from acquiring inventory until the cash from selling it is collected. It equals the inventory period plus the accounts receivable period.
+- **Cash cycle**: The operating cycle minus the accounts payable period. It is the time between paying cash for inventory and collecting cash from customers.
+- **Inventory period**: The time it takes to acquire or produce inventory and sell it. It is the first part of the operating cycle. *(added, not from class)*
+- **Accounts receivable period**: The time it takes to collect payment from customers after a sale on credit. It is the second part of the operating cycle. *(added, not from class)*
+- **Accounts payable period**: The time the firm takes to pay its suppliers for purchases made on credit. It is subtracted from the operating cycle to get the cash cycle. *(added, not from class)*
 
 ## Takeaways
 
-- Net working capital + Fixed assets = Long-term debt + Equity.
-- Cash = Long-term debt + Equity + Current liabilities - Current assets other than cash - Fixed assets.
-- Operating cycle = Inventory period + Accounts receivable period (2 components).
-- Cash cycle = Operating cycle - Accounts payable period (3 components).
-- The cash cycle is shorter than the operating cycle by the length of the accounts payable period.
+- Net working capital + fixed assets = long-term debt + equity.
+- Cash is the balancing item: Cash = long-term debt + equity + current liabilities - other current assets - fixed assets.
+- Operating cycle = inventory period + accounts receivable period.
+- Cash cycle = operating cycle - accounts payable period.
+- A longer accounts payable period shortens the cash cycle, and a longer inventory or receivable period lengthens it.
 
 ## Review questions
 
-1. Write the basic balance sheet identity in terms of net working capital.
-2. How do you solve the balance sheet identity for cash? Write the formula.
+1. Write the basic balance sheet identity using net working capital.
+2. How do you derive the formula for cash from the identity, and why must current assets exclude cash in that formula?
 3. What are the components of the operating cycle, and how is it calculated?
-4. How does the cash cycle differ from the operating cycle?
-5. If the inventory period is 50 days, the receivable period is 25 days and the payable period is 30 days, what are the operating cycle and the cash cycle?
+4. How does the cash cycle differ from the operating cycle, and which extra component does it include?
+5. If a firm's inventory period is 50 days, its receivable period is 25 days and its payable period is 30 days, what are its operating cycle and cash cycle?
