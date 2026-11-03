@@ -15,3 +15,5 @@
 | Q5 | Business Analytics II | 2026-10-27 | Forecasting Foundations: Smoothing, Splits, Baselines | Trend + season + noise and smoothing; time splits and walk-forward backtests; naive, simple MA, weighted MA and seasonal naive baselines. |
 | Q5 | Finance | 2026-10-29 | Scrum Timeboxing and Adaptive Agile Approaches | Timeboxing in a 4-week sprint (Retrospective 45 min per week, Sprint Review), Kanban for unpredictable work, Disciplined Agile and SAFe. |
 | Q5 | Business Analytics II | 2026-10-30 | Forecasting Sales and Ordering Decisions | Exponential smoothing and Holt-Winters (level, trend, season; additive vs. multiplicative); 80% forecast ranges from past ratios; critical ratio Cu/(Cu+Co) (Maya: about 73%). |
+| Q5 | Finance | 2026-11-02 | Balance Sheet Identity and Cash Cycles | NWC + fixed assets = LT debt + equity, solving for cash; operating cycle = inventory + receivable periods; cash cycle = operating cycle - payable period. |
+| Q5 | Project Mangment | 2026-11-02 | Project Problem Detection and Performance Measurement | Five-step problem resolution, why measure performance, lagging vs. leading KPIs, velocity, lead vs. cycle time, dashboards. |
